@@ -6,7 +6,7 @@ int main (int argc, char* argv[]) {
 
     if (argc > 11) {
         printf("Invalid number of arguments: expected maximum 11 but got %d\n", argc);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     //flags are as follows:
@@ -30,7 +30,7 @@ int main (int argc, char* argv[]) {
 
     if (filepointer == NULL) {
         printf("Error opening file.\n");
-        return 1;
+        return EXIT_FAILURE;
     }
     
     printf("File opened: %s\n", filename);
@@ -121,9 +121,9 @@ int main (int argc, char* argv[]) {
         printf("Closed file.\n");
     } else {
         printf("Error closing file.\n");
-        return 1;
+        return EXIT_FAILURE;
     }
     
     printf("Run successful.\n");
-    return 0;
+    return EXIT_SUCCESS;
 }
