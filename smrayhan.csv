@@ -2,3 +2,5 @@ DATE,UBIT,DURATION,ACTIVITY & TOOL DESCRIPTION
 2025/02/10,smrayhan,5 minutes,created git repo and my activity log.
 2025/02/24,smrayhan,2 minutes,responded to Tristan's commit check.
 2025/02/24,smrayhan,30 minutes,created a basic Makefile to compile csv.c.
+2025/02/24,smrayhan,1 hour 30 minutes,fixed Makefile and added a testing file.
+2025/02/24,smrayhan,1 hour,Fixed Makefile again so that everything compiles and runs with a sample csv.
