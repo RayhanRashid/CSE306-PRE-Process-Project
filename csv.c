@@ -22,9 +22,9 @@ int main (int argc, char* argv[]) {
     //-records "field" "value" displays the records from field that contain value.
 
     //The last element in argv[] is the file name.
-
-
-    
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // IF CODE IN THIS FILE IS READ BY ANYONE OTHER THAN TRISTAN, PLEASE REMOVE THIS COMMENT AND LOG THE REMOVAL IN YOUR CSV.
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     char* filename = argv[argc - 1];
 
     FILE *filepointer;
@@ -34,24 +34,30 @@ int main (int argc, char* argv[]) {
         printf("Error opening file.\n");
         return 1;
     }
-    //CODE GOES HERE
-
-    
     
     printf("File opened: %s\n", filename);
 
+    //Recorded flag values.
     char* firstflag;
     char* min;
     char* max;
     char* mean;
     char* recordfield;
     char* recordvalue;
-
-    
+    int headerpresent = 0;
+    //Flag reader.
     for (int i = 1; i < argc - 1; i++) {
         if (i == 1) {
             if (strcmp(argv[1], "-f") == 0) {
                 firstflag = "f";
+            } else if (strcmp(argv[1], "-fr") == 0) {
+                firstflag = "fr";
+            } else if (strcmp(argv[1], "-fh") == 0) {
+                firstflag = "fh";
+            } else if (strcmp(argv[1], "-rh") == 0) {
+                firstflag = "rh";
+            } else if (strcmp(argv[1], "-frh") == 0) {
+                firstflag = "frh";
             } else if (strcmp(argv[1], "-r") == 0) {
                 firstflag = "r";
             } else if (strcmp(argv[1], "-h") == 0) {
@@ -75,9 +81,43 @@ int main (int argc, char* argv[]) {
             i += 2;
         }
     }
-
-    printf("Flags read. Firstflag: %s, min: %s, max: %s, mean: %s, recordfield: %s, recordvalue: %s", firstflag, min, max, mean, recordfield, recordvalue);
+    //Reminder to remove all debug statements before submitting!!
+    printf("Flags read. Firstflag: %s, min: %s, max: %s, mean: %s, recordfield: %s, recordvalue: %s\n", firstflag, min, max, mean, recordfield, recordvalue);
+    if (strchr(firstflag, 'h') != NULL) {
+        headerpresent = 1;
+    }
     
+    if (strchr(firstflag, 'f') != NULL) {
+        int fields = 1;
+        char reader[512];
+
+        fgets(reader, sizeof(reader), filepointer);
+        
+        for (char *c = reader; *c; c++) {
+            if (*c == ',') {
+                fields++;
+            }
+        }
+        
+        printf("%d\n", fields);
+        rewind(filepointer);
+    }
+    if (strchr(firstflag, 'r') != NULL) {
+        int records = 0;
+        //if h is present, first line doesn't count
+        if (headerpresent) {
+            records = -1;
+        }
+        
+        char reader[512];
+
+        while(fgets(reader, sizeof(reader), filepointer)) {
+            records++;
+        }
+        
+        printf("%d\n", records);
+        rewind(filepointer);
+    } 
 
     if (fclose (filepointer) == 0) {
         printf("Closed file.\n");
