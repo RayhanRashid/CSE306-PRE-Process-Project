@@ -22,9 +22,7 @@ int main (int argc, char* argv[]) {
     //-records "field" "value" displays the records from field that contain value.
 
     //The last element in argv[] is the file name.
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // IF CODE IN THIS FILE IS READ BY ANYONE OTHER THAN TRISTAN, PLEASE REMOVE THIS COMMENT AND LOG THE REMOVAL IN YOUR CSV.
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     char* filename = argv[argc - 1];
 
     FILE *filepointer;
