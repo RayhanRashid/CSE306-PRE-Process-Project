@@ -70,7 +70,7 @@ int main (int argc, char* argv[]) {
             recordfield = argv[i + 1];
             recordvalue = argv[i + 2];
             i += 2;
-        } else if (strchr(argv[i], '-')) {
+        } else if (argv[i][0] == '-') {
             if (strchr(argv[i], 'f'))
                 flags |= FLAG_F;
             if (strchr(argv[i], 'r'))
