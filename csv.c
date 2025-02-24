@@ -5,7 +5,7 @@
 int main (int argc, char* argv[]) {
 
     if (argc > 11) {
-        printf("Invalid number of arguments: expected maximum 11 but got %d\n", argc);
+        fprintf(stderr, "Invalid number of arguments: expected maximum 11 but got %d\n", argc);
         return EXIT_FAILURE;
     }
 
@@ -29,7 +29,7 @@ int main (int argc, char* argv[]) {
     filepointer = fopen(filename, "r");
 
     if (filepointer == NULL) {
-        printf("Error opening file.\n");
+        fprintf(stderr, "Error opening file.\n");
         return EXIT_FAILURE;
     }
     
@@ -120,7 +120,7 @@ int main (int argc, char* argv[]) {
     if (fclose (filepointer) == 0) {
         printf("Closed file.\n");
     } else {
-        printf("Error closing file.\n");
+        fprintf(stderr, "Error closing file.\n");
         return EXIT_FAILURE;
     }
     
