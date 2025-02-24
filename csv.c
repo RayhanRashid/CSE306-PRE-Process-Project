@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define FLAG_F 0x01
+#define FLAG_R 0x02
+#define FLAG_H 0x04
+#define FLAG_MAX 0x08
+#define FLAG_MIN 0x10
+#define FLAG_MEAN 0x20
+#define FLAG_RECORDS 0x40
+
 int main (int argc, char* argv[]) {
 
     if (argc > 11) {
