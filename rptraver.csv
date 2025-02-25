@@ -3,5 +3,6 @@ DATE,UBIT,DURATION,ACTIVITY & TOOL DESCRIPTION
 2/24/2025,rptraver,5 minutes,Changed error message output channel from 'stdout' to 'stderr'
 2/24/2025,rptraver,5 minutes,Added flag macros for bitwise operations
 2/24/2025,rptraver,5 minutes,Created and input previous commit messages to 'rptraver.csv'
-2/24/2025,rptraver,25 minutes,Changed flag detection, reduced quantity of boolean operations
-2/25/2025,rptraver,50 minutes,Removed 'headerpresent' (redundant boolean tracker), fixed SEGFAULT caused by uninitialized pointers
+2/24/2025,rptraver,25 minutes,Changed flag detection; reduced quantity of boolean operations
+2/25/2025,rptraver,50 minutes,Removed 'headerpresent' (redundant boolean tracker); fixed SEGFAULT caused by uninitialized pointers
+2/25/2025,rptraver,15 minutes,Updated 'make clean'; added .gitignore to prevent accidental file addition to repository of temporary files

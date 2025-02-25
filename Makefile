@@ -49,6 +49,6 @@ test: $(SRC) $(TEST_SRC)
 
 # Clean compiled files
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJ) $(TARGET) $(TEST_BIN)
 
 

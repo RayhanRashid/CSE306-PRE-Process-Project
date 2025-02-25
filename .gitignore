@@ -1,0 +1,8 @@
+*               #Ignore all files
+!*/             #Unignore directories
+!*.c            #Unignore C files
+!*.h            #Unignore C header files
+!*.csv          #Unignore CSV files
+!*.md           #Unignore .md files
+!Makefile       #Unignore the Makefile
+!.gitignore     #Unignore .gitignore
