@@ -44,12 +44,11 @@ int main (int argc, char* argv[]) {
     printf("File opened: %s\n", filename);
 
     //Recorded flag values.
-    char* min;
-    char* max;
-    char* mean;
-    char* recordfield;
-    char* recordvalue;
-    int headerpresent = 0;
+    char* min = NULL;
+    char* max = NULL;
+    char* mean = NULL;
+    char* recordfield = NULL;
+    char* recordvalue = NULL;
     unsigned short int flags = 0;
     //Flag reader. 
     for (int i = 1; i < argc - 1; i++) {
@@ -82,9 +81,6 @@ int main (int argc, char* argv[]) {
     }
     //Reminder to remove all debug statements before submitting!!
     printf("Flags read. flag_f: %d, flag_r: %d, flag_h: %d, min: %s, max: %s, mean: %s, recordfield: %s, recordvalue: %s\n", (flags & FLAG_F), (flags & FLAG_R) >> 1, (flags & FLAG_H) >> 2, min, max, mean, recordfield, recordvalue);
-    if (flags & FLAG_H) {
-        headerpresent = 1;
-    }
     
     if (flags & FLAG_F) {
         int fields = 1;
@@ -104,7 +100,7 @@ int main (int argc, char* argv[]) {
     if (flags & FLAG_R) {
         int records = 0;
         //if h is present, first line doesn't count
-        if (headerpresent) {
+        if (flags & FLAG_H) {
             records = -1;
         }
         
