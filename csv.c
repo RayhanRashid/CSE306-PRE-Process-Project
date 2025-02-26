@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <float.h>
+#include <ctype.h>
 
 #define FLAG_F 0x01
 #define FLAG_R 0x02
@@ -9,6 +12,19 @@
 #define FLAG_MIN 0x10
 #define FLAG_MEAN 0x20
 #define FLAG_RECORDS 0x40
+
+int isNumeric(char* c) {
+    if (*c == '\0') {
+        return 0;
+    }
+    while (*c) {
+        if (!isdigit(*c)) {
+            return 0;
+        }
+        c++;
+    }
+    return 1;
+}
 
 int main (int argc, char* argv[]) {
 
@@ -112,7 +128,48 @@ int main (int argc, char* argv[]) {
         
         printf("%d\n", records);
         rewind(filepointer);
-    } 
+    }
+
+    if (flags & FLAG_H) {
+        //header versions of min max and mean flags
+    } else {
+        //handles the min flag
+        if (min != NULL) {
+            double minvalue = DBL_MAX;
+            char reader[512];
+            char* fillerpointer;
+            
+            while (fgets(reader, sizeof(reader), filepointer)) {
+                int field = 0;
+                char fieldvalue[512];
+                int valueindex = 0;
+                for (char *c = reader; *c; c++) {
+                    if (*c == ',') {
+                        field++;
+                    }
+                    if (field == atoi(min) && *c != ',' && *c >= '0' && *c <= '9') {
+                        fieldvalue[valueindex] = *c;
+                        valueindex++;
+                    }
+                }
+                printf("Field value: %s\n", fieldvalue);
+               
+                //it took me FOREVER to figure out how to use strtod properly
+                if (isNumeric(fieldvalue)) {
+                    double value = strtod(fieldvalue, &fillerpointer);
+                    
+                    if (fillerpointer != fieldvalue) {
+                        if (value < minvalue) {
+                            minvalue = value;
+                        }
+                    }       
+                }
+            }
+        }
+    }
+
+
+    
 
     if (fclose (filepointer) == 0) {
         printf("Closed file.\n");
