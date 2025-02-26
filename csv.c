@@ -152,7 +152,7 @@ int main (int argc, char* argv[]) {
                         valueindex++;
                     }
                 }
-                printf("Field value: %s\n", fieldvalue);
+                //printf("Field value: %s\n", fieldvalue);
                
                 //it took me FOREVER to figure out how to use strtod properly
                 if (isNumeric(fieldvalue)) {
@@ -165,7 +165,88 @@ int main (int argc, char* argv[]) {
                     }       
                 }
             }
+            if (minvalue == DBL_MAX) {
+                return EXIT_FAILURE;
+            }
+            printf("%f\n", minvalue);
+            rewind(filepointer);
         }
+
+        if (max != NULL) {
+            double maxvalue = DBL_MIN;
+            char reader[512];
+            char* fillerpointer;
+            
+            while (fgets(reader, sizeof(reader), filepointer)) {
+                int field = 0;
+                char fieldvalue[512];
+                int valueindex = 0;
+                for (char *c = reader; *c; c++) {
+                    if (*c == ',') {
+                        field++;
+                    }
+                    if (field == atoi(max) && *c != ',' && *c >= '0' && *c <= '9') {
+                        fieldvalue[valueindex] = *c;
+                        valueindex++;
+                    }
+                }
+                //printf("Field value: %s\n", fieldvalue);
+               
+                if (isNumeric(fieldvalue)) {
+                    double value = strtod(fieldvalue, &fillerpointer);
+                    
+                    if (fillerpointer != fieldvalue) {
+                        if (value > maxvalue) {
+                            maxvalue = value;
+                        }
+                    }       
+                }
+            }
+            if (maxvalue == DBL_MIN) {
+                return EXIT_FAILURE;
+            }
+            printf("%f\n", maxvalue);
+            rewind(filepointer);
+        }
+        if (mean != NULL) {
+            double sum = 0;
+            double itemcount = 0;
+            char reader[512];
+            char* fillerpointer;
+            
+            while (fgets(reader, sizeof(reader), filepointer)) {
+                int field = 0;
+                char fieldvalue[512];
+                int valueindex = 0;
+                for (char *c = reader; *c; c++) {
+                    if (*c == ',') {
+                        field++;
+                    }
+                    if (field == atoi(mean) && *c != ',' && *c >= '0' && *c <= '9') {
+                        fieldvalue[valueindex] = *c;
+                        valueindex++;
+                    }
+                }
+                //printf("Field value: %s\n", fieldvalue);
+               
+                
+                if (isNumeric(fieldvalue)) {
+                    double value = strtod(fieldvalue, &fillerpointer);
+                    
+                    if (fillerpointer != fieldvalue) {
+                        sum += value;
+                        itemcount++;
+                    }       
+                }
+            }
+
+            if (itemcount == 0) {
+                return EXIT_FAILURE;
+            }
+            printf("%f\n", sum / itemcount);
+            
+        }
+        
     }
 
 
