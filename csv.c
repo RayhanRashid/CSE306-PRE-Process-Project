@@ -152,6 +152,95 @@ int main (int argc, char* argv[]) {
 
     if (flags & FLAG_H) {
         //header versions of min max and mean flags
+        if (min != NULL) {
+            double minvalue = DBL_MAX;
+            char reader[512];
+            char fieldvalue[512];
+            char* fillerpointer;
+            int targetfield = 0;
+            int fieldindex = 0;
+            int valueindex = 0;
+            bool inquotes = false;
+            fgets(reader, sizeof(reader), filepointer);
+            for (char *c = reader; *c; c++) {
+                    if (*c == '"') {
+                        inquotes = !inquotes;
+                    }
+                    else if ((*c == ',' || *c == '\n') && !inquotes) {
+                        
+                        if (*c == '\n') {
+                            fieldvalue[strlen(fieldvalue) - 1] = '\0';
+                        }
+                        
+                        if (strcmp(fieldvalue, min) == 0) {
+                            targetfield = fieldindex;
+                        }
+
+                        memset(fieldvalue, 0, sizeof(fieldvalue));
+                        
+                        fieldindex++;
+                        valueindex = 0;
+
+                    }
+                    if (*c != ',' && *c != '\n') {
+                        fieldvalue[valueindex] = *c;
+                        valueindex++;
+                    }
+                        
+            }
+            
+
+            printf("Target field: %d\n", targetfield);
+            
+                    
+            
+        
+            while (fgets(reader, sizeof(reader), filepointer)) {
+                int field = 0;
+                fieldvalue[0] = '\0';
+                valueindex = 0;
+                inquotes = false;
+                bool capturing = false;
+                for (char *c = reader; *c; c++) {
+                    //printf("C is %d\n", *c);
+                    //printf("Field is %d\n", field);
+                    if (*c == '"') {
+                        inquotes = !inquotes;
+                    }
+                    if (*c == ',' && !inquotes) {
+                        field++;
+                        if (capturing) break; 
+                        
+                        continue;
+                    }
+                    //printf("Field: %d\n", field);
+                    if (field == targetfield && ((*c == '.') || ((*c >= '0') && (*c <= '9')))) {
+                        capturing = true;
+                        
+                        fieldvalue[valueindex] = *c;
+                        valueindex++;
+                        
+                        
+                    }
+                }
+                //printf("Field value: %s\n", fieldvalue);
+               
+                if (isDouble(fieldvalue)) {
+                    double value = strtod(fieldvalue, &fillerpointer);
+                    
+                    if (fillerpointer != fieldvalue) {
+                        if (value < minvalue) {
+                            minvalue = value;
+                        }
+                    }       
+                }
+            }
+            if (minvalue == DBL_MAX) {
+                return EXIT_FAILURE;
+            }
+            printf("%f\n", minvalue);
+            rewind(filepointer);
+        }
     } else {
         if (min != NULL) {
             double minvalue = DBL_MAX;
@@ -176,8 +265,8 @@ int main (int argc, char* argv[]) {
                         
                         continue;
                     }
-                    //printf("Field: %d\n", field);
-                    if (field == targetfield && (*c == '.') || ((*c >= '0') && (*c <= '9'))) {
+                    
+                    if (field == targetfield && ((*c == '.') || ((*c >= '0') && (*c <= '9')))) {
                         capturing = true;
                         
                         fieldvalue[valueindex] = *c;
@@ -229,8 +318,8 @@ int main (int argc, char* argv[]) {
                         
                         continue;
                     }
-                    //printf("Field: %d\n", field);
-                    if (field == targetfield && (*c == '.') || ((*c >= '0') && (*c <= '9'))) {
+                 
+                    if (field == targetfield && ((*c == '.') || ((*c >= '0') && (*c <= '9')))) {
                         capturing = true;
                         
                         fieldvalue[valueindex] = *c;
