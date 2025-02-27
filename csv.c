@@ -195,23 +195,39 @@ int main (int argc, char* argv[]) {
             double maxvalue = DBL_MIN;
             char reader[512];
             char* fillerpointer;
+            int targetfield = atoi(max);
             
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
                 char fieldvalue[512];
                 int valueindex = 0;
+                bool inquotes = false;
+                bool capturing = false;
                 for (char *c = reader; *c; c++) {
-                    if (*c == ',') {
-                        field++;
+                    //printf("C is %d\n", *c);
+                    //printf("Field is %d\n", field);
+                    if (*c == '"') {
+                        inquotes = !inquotes;
                     }
-                    if (field == atoi(max) && *c != ',' && *c >= '0' && *c <= '9') {
+                    if (*c == ',' && !inquotes) {
+                        field++;
+                        if (capturing) break; 
+                        
+                        continue;
+                    }
+                    //printf("Field: %d\n", field);
+                    if (field == targetfield && (*c == '.') || ((*c >= '0') && (*c <= '9'))) {
+                        capturing = true;
+                        
                         fieldvalue[valueindex] = *c;
                         valueindex++;
+                        
+                        
                     }
                 }
                 //printf("Field value: %s\n", fieldvalue);
                
-                if (isNumeric(fieldvalue)) {
+                if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
                     
                     if (fillerpointer != fieldvalue) {
@@ -232,7 +248,7 @@ int main (int argc, char* argv[]) {
             double itemcount = 0;
             char reader[512];
             char* fillerpointer;
-            int targetField = atoi(mean);
+            int targetfield = atoi(mean);
 
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
@@ -254,7 +270,7 @@ int main (int argc, char* argv[]) {
                         continue;
                     }
                     //printf("Field: %d\n", field);
-                    if (field == targetField) {
+                    if (field == targetfield) {
                         capturing = true;
                         
                         fieldvalue[valueindex] = *c;
