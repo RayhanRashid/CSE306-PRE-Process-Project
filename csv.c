@@ -157,24 +157,38 @@ int main (int argc, char* argv[]) {
             double minvalue = DBL_MAX;
             char reader[512];
             char* fillerpointer;
-            
+            int targetfield = atoi(min);
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
                 char fieldvalue[512];
                 int valueindex = 0;
+                bool inquotes = false;
+                bool capturing = false;
                 for (char *c = reader; *c; c++) {
-                    if (*c == ',') {
-                        field++;
+                    //printf("C is %d\n", *c);
+                    //printf("Field is %d\n", field);
+                    if (*c == '"') {
+                        inquotes = !inquotes;
                     }
-                    if (field == atoi(min) && *c != ',' && *c >= '0' && *c <= '9') {
+                    if (*c == ',' && !inquotes) {
+                        field++;
+                        if (capturing) break; 
+                        
+                        continue;
+                    }
+                    //printf("Field: %d\n", field);
+                    if (field == targetfield && (*c == '.') || ((*c >= '0') && (*c <= '9'))) {
+                        capturing = true;
+                        
                         fieldvalue[valueindex] = *c;
                         valueindex++;
+                        
+                        
                     }
                 }
                 //printf("Field value: %s\n", fieldvalue);
                
-                //it took me FOREVER to figure out how to use strtod properly
-                if (isNumeric(fieldvalue)) {
+                if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
                     
                     if (fillerpointer != fieldvalue) {
