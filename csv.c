@@ -377,6 +377,7 @@ int main (int argc, char* argv[]) {
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
                 fieldvalue[0] = '\0';
+                memset(fieldvalue, 0, sizeof(fieldvalue));
                 valueindex = 0;
                 inquotes = false;
                 bool capturing = false;
