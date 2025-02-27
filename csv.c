@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <float.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 #define FLAG_F 0x01
 #define FLAG_R 0x02
@@ -25,6 +26,25 @@ int isNumeric(char* c) {
     }
     return 1;
 }
+
+int isDouble(const char *str) {
+    if (str == NULL || *str == '\0') {
+        return 0; 
+    }
+
+    char *endptr;
+    strtod(str, &endptr);
+
+    while (*endptr) {
+        if (!isspace((unsigned char)*endptr)) {
+            return 0; 
+        }
+        endptr++;
+    }
+
+    return 1; 
+}
+
 
 int main (int argc, char* argv[]) {
 
@@ -133,7 +153,6 @@ int main (int argc, char* argv[]) {
     if (flags & FLAG_H) {
         //header versions of min max and mean flags
     } else {
-        //handles the min flag
         if (min != NULL) {
             double minvalue = DBL_MAX;
             char reader[512];
@@ -213,39 +232,62 @@ int main (int argc, char* argv[]) {
             double itemcount = 0;
             char reader[512];
             char* fillerpointer;
-            
+            int targetField = atoi(mean);
+
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
                 char fieldvalue[512];
                 int valueindex = 0;
+                bool capturing = false;
+                bool inquotes = false;
+                
                 for (char *c = reader; *c; c++) {
-                    if (*c == ',') {
-                        field++;
+                    //printf("C is %d\n", *c);
+                    //printf("Field is %d\n", field);
+                    if (*c == '"') {
+                        inquotes = !inquotes;
                     }
-                    if (field == atoi(mean) && *c != ',' && *c >= '0' && *c <= '9') {
+                    if (*c == ',' && !inquotes) {
+                        field++;
+                        if (capturing) break; 
+                        
+                        continue;
+                    }
+                    //printf("Field: %d\n", field);
+                    if (field == targetField) {
+                        capturing = true;
+                        
                         fieldvalue[valueindex] = *c;
                         valueindex++;
+                        
+                        
                     }
                 }
+                fieldvalue[valueindex] = '\0'; 
                 //printf("Field value: %s\n", fieldvalue);
-               
-                
-                if (isNumeric(fieldvalue)) {
+                if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
-                    
                     if (fillerpointer != fieldvalue) {
                         sum += value;
                         itemcount++;
-                    }       
+                    }
+                } else {
+                    //printf("This value was not included\n");
                 }
             }
-
+            
+            //printf("Sum: %f\n", sum);
+            //printf("Item count: %f\n", itemcount);
             if (itemcount == 0) {
                 return EXIT_FAILURE;
             }
+           
             printf("%f\n", sum / itemcount);
-            
-        }
+            rewind(filepointer);
+            return EXIT_SUCCESS;
+        }          
+        
+      
         
     }
 
