@@ -27,6 +27,17 @@ int isNumeric(char* c) {
     return 1;
 }
 
+
+
+
+char *strdup(const char *str) {
+    size_t len = strlen(str) + 1;
+    char *copy = malloc(len);
+    if (copy) {
+        memcpy(copy, str, len);
+    }
+    return copy;
+
 int isDouble(const char *str) {
     if (str == NULL || *str == '\0') {
         return 0; 
@@ -43,6 +54,7 @@ int isDouble(const char *str) {
     }
 
     return 1; 
+
 }
 
 
@@ -322,6 +334,110 @@ int main (int argc, char* argv[]) {
     }
 
 
+if (flags & FLAG_RECORDS) {
+    char reader[512];
+    int targetFieldIndex = -1;
+
+    printf("Searching for records in file: %s\n", filename);
+    printf("Field: %s, Value: %s\n", recordfield, recordvalue);
+
+    // Read the first line to handle headers if -h is present
+    if (flags & FLAG_H) {
+        if (fgets(reader, sizeof(reader), filepointer)) {
+            char *headerLine = strdup(reader);  // Duplicate header for safety
+            char *header = strtok(headerLine, ",\n");
+            int fieldIndex = 0;
+
+            printf("Header: %s\n", reader); // Debug: Print full header line
+
+            // Iterate through header to find the target field
+            while (header != NULL) {
+	      printf("Found header token: '%s'\n", header); // Debug print
+
+                // Trim trailing \r in case of Windows-style line endings
+                size_t len = strlen(header);
+                if (len > 0 && header[len - 1] == '\r') {
+                    header[len - 1] = '\0';
+                }
+
+                if (strcmp(header, recordfield) == 0) {
+                    targetFieldIndex = fieldIndex;
+                    break;
+                }
+
+                header = strtok(NULL, ",\n");
+                fieldIndex++;
+            }
+
+            free(headerLine); // Free duplicated header
+
+            if (targetFieldIndex == -1) {
+	      fprintf(stderr, "Error: Field '%s' not found in header.\n", recordfield);
+                fclose(filepointer);
+                return EXIT_FAILURE;
+            }
+
+            printf("Target field index: %d\n", targetFieldIndex);
+        }
+    } else {
+        targetFieldIndex = atoi(recordfield);
+
+        if (targetFieldIndex < 0) {
+	  fprintf(stderr, "Error: Invalid field index '%s'.\n", recordfield);
+            fclose(filepointer);
+            return EXIT_FAILURE;
+        }
+
+        printf("Target field index: %d\n", targetFieldIndex);
+        fgets(reader, sizeof(reader), filepointer);  // Skip header if -h not used
+    }
+
+    // Process records
+    while (fgets(reader, sizeof(reader), filepointer)) {
+        char *recordLine = strdup(reader);  // Duplicate line to store full record
+        char *token = strtok(reader, ",\n");
+        int currentFieldIndex = 0;
+        char *fieldValue = NULL;
+
+        printf("Processing line: %s", recordLine); // Debug print
+
+        while (token != NULL) {
+            if (currentFieldIndex == targetFieldIndex) {
+                fieldValue = token;
+                break;
+            }
+            token = strtok(NULL, ",\n");
+            currentFieldIndex++;
+        }
+
+        if (fieldValue != NULL) {
+	  printf("Field value: %s\n", fieldValue); // Debug print
+        }
+
+if (fieldValue != NULL) {
+    // Trim trailing \r (Windows-style line endings)
+    size_t len = strlen(fieldValue);
+    if (len > 0 && fieldValue[len - 1] == '\r') {
+        fieldValue[len - 1] = '\0';
+    }
+
+    // Debug print both values before comparison
+    printf("Comparing: FieldValue='%s' | RecordValue='%s'\n", fieldValue, recordvalue);
+
+    if (strcmp(fieldValue, recordvalue) == 0) {
+        printf("Match found: %s", recordLine);
+    }
+}
+	
+        if (fieldValue != NULL && strcmp(fieldValue, recordvalue) == 0) {
+            printf("Match found: %s", recordLine);
+        }
+
+        free(recordLine);  // Free duplicated line
+    }
+
+    rewind(filepointer);
+}
     
 
     if (fclose (filepointer) == 0) {
