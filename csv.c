@@ -37,7 +37,7 @@ char *strdup(const char *str) {
         memcpy(copy, str, len);
     }
     return copy;
-
+}
 int isDouble(const char *str) {
     if (str == NULL || *str == '\0') {
         return 0; 
@@ -651,13 +651,13 @@ if (flags & FLAG_RECORDS) {
                 return EXIT_FAILURE;
             }
 
-            printf("Target field index: %d\n", targetFieldIndex);
+            //printf("Target field index: %d\n", targetFieldIndex);
         }
     } else {
         targetFieldIndex = atoi(recordfield);
 
         if (targetFieldIndex < 0) {
-	  fprintf(stderr, "Error: Invalid field index '%s'.\n", recordfield);
+	  //fprintf(stderr, "Error: Invalid field index '%s'.\n", recordfield);
             fclose(filepointer);
             return EXIT_FAILURE;
         }
@@ -673,7 +673,7 @@ if (flags & FLAG_RECORDS) {
         int currentFieldIndex = 0;
         char *fieldValue = NULL;
 
-        printf("Processing line: %s", recordLine); // Debug print
+        //printf("Processing line: %s", recordLine); // Debug print
 
         while (token != NULL) {
             if (currentFieldIndex == targetFieldIndex) {
@@ -685,7 +685,7 @@ if (flags & FLAG_RECORDS) {
         }
 
         if (fieldValue != NULL) {
-	  printf("Field value: %s\n", fieldValue); // Debug print
+	  //printf("Field value: %s\n", fieldValue); // Debug print
         }
 
 if (fieldValue != NULL) {
@@ -696,7 +696,7 @@ if (fieldValue != NULL) {
     }
 
     // Debug print both values before comparison
-    printf("Comparing: FieldValue='%s' | RecordValue='%s'\n", fieldValue, recordvalue);
+    //printf("Comparing: FieldValue='%s' | RecordValue='%s'\n", fieldValue, recordvalue);
 
     if (strcmp(fieldValue, recordvalue) == 0) {
         printf("Match found: %s", recordLine);
