@@ -14,6 +14,14 @@
 #define FLAG_MEAN 0x20
 #define FLAG_RECORDS 0x40
 
+void trim_newline(char *str) {
+    size_t len = strlen(str);
+    while (len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r')) {
+        str[len - 1] = '\0';
+        len--;
+    }
+}
+
 void trim_trailing_newline(char *str) {
     size_t len = strlen(str);
     if (len > 0) {
@@ -642,27 +650,40 @@ int main (int argc, char* argv[]) {
 if (flags & FLAG_RECORDS) {
         char reader[512];
         int targetFieldIndex = -1;
-
+	char reader2[512];
         printf("Searching for records in file: %s\n", filename);
         printf("Field: %s, Value: %s\n", recordfield, recordvalue);
 
         // Read the first line for headers if -h is present
         if (flags & FLAG_H) {
             if (fgets(reader, sizeof(reader), filepointer)) {
-                char *headerLine = strdup(reader);
-                int fieldIndex = 0;
-                char *header = get_csv_field(headerLine, fieldIndex);
+                char *headerLine = strdup(reader);  
+		trim_newline(reader);		
+		       //reader = strtok(reader, "\n");  // Removes newline by splitting at '\n'
 
-                printf("Header: %s\n", reader);
+		int fieldIndex = 0;  
+            char *header = NULL;  
+	    //char readerclean[512];
+            //printf("Header: %s\n", reader);  
+	    //readerclean = trim_trailing_newline(reader);
+            // Iterate over fieldIndex from 0 to 10
+            while (fieldIndex <= 10) {
+	      strcpy(reader2, reader);
+	      //readerclean = trim_trailing_newline(reader);
+                header = get_csv_field(reader2, fieldIndex);  
+		//printf("headerLine %s\n",headerLine);
+		//printf("header %s\n",header);
+                if (header) {  
+		  //printf("Header[%d]: '%s'\n", fieldIndex, header);  
 
-                while (header) {
-                    if (strcmp(header, recordfield) == 0) {
-                        targetFieldIndex = fieldIndex;
-                        break;
-                    }
-                    fieldIndex++;
-                    header = get_csv_field(headerLine, fieldIndex);
-                }
+                    if (strcmp(header, recordfield) == 0) {  
+                        targetFieldIndex = fieldIndex;  
+                        //break;  
+                    }  
+                }  
+
+                fieldIndex++;  
+            } 
 
                 free(headerLine);
 
