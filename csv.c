@@ -50,7 +50,7 @@ int isNumeric(char* c) {
 char *get_csv_field(char *line, int fieldIndex) {
     int index = 0, inQuotes = 0;
     char *start = line;
-    
+
     while (*line) {
         if (*line == '"') {
             inQuotes = !inQuotes; // Toggle quote flag
@@ -79,7 +79,7 @@ char *strdup(const char *str) {
 }
 int isDouble(const char *str) {
     if (str == NULL || *str == '\0') {
-        return 0; 
+        return 0;
     }
 
     char *endptr;
@@ -87,12 +87,12 @@ int isDouble(const char *str) {
 
     while (*endptr) {
         if (!isspace((unsigned char)*endptr)) {
-            return 0; 
+            return 0;
         }
         endptr++;
     }
 
-    return 1; 
+    return 1;
 
 }
 
@@ -127,7 +127,7 @@ int main (int argc, char* argv[]) {
         fprintf(stderr, "Error opening file.\n");
         return EXIT_FAILURE;
     }
-    
+
     printf("File opened: %s\n", filename);
 
     //Recorded flag values.
@@ -137,7 +137,7 @@ int main (int argc, char* argv[]) {
     char* recordfield = NULL;
     char* recordvalue = NULL;
     unsigned short int flags = 0;
-    //Flag reader. 
+    //Flag reader.
     for (int i = 1; i < argc - 1; i++) {
         if (strcmp(argv[i], "-min") == 0) {
             flags |= FLAG_MIN;
@@ -168,19 +168,19 @@ int main (int argc, char* argv[]) {
     }
     //Reminder to remove all debug statements before submitting!!
     printf("Flags read. flag_f: %d, flag_r: %d, flag_h: %d, min: %s, max: %s, mean: %s, recordfield: %s, recordvalue: %s\n", (flags & FLAG_F), (flags & FLAG_R) >> 1, (flags & FLAG_H) >> 2, min, max, mean, recordfield, recordvalue);
-    
+
     if (flags & FLAG_F) {
         int fields = 1;
         char reader[512];
 
         fgets(reader, sizeof(reader), filepointer);
-        
+
         for (char *c = reader; *c; c++) {
             if (*c == ',') {
                 fields++;
             }
         }
-        
+
         printf("%d\n", fields);
         rewind(filepointer);
     }
@@ -190,13 +190,13 @@ int main (int argc, char* argv[]) {
         if (flags & FLAG_H) {
             records = -1;
         }
-        
+
         char reader[512];
 
         while(fgets(reader, sizeof(reader), filepointer)) {
             records++;
         }
-        
+
         printf("%d\n", records);
         rewind(filepointer);
     }
@@ -218,17 +218,17 @@ int main (int argc, char* argv[]) {
                         inquotes = !inquotes;
                     }
                     else if ((*c == ',' || *c == '\n') && !inquotes) {
-                        
+
                         if (*c == '\n') {
                             fieldvalue[strlen(fieldvalue) - 1] = '\0';
                         }
-                        
+
                         if (strcmp(fieldvalue, min) == 0) {
                             targetfield = fieldindex;
                         }
 
                         memset(fieldvalue, 0, sizeof(fieldvalue));
-                        
+
                         fieldindex++;
                         valueindex = 0;
 
@@ -237,15 +237,15 @@ int main (int argc, char* argv[]) {
                         fieldvalue[valueindex] = *c;
                         valueindex++;
                     }
-                        
+
             }
-            
+
 
             //printf("Target field: %d\n", targetfield);
-            
-                    
-            
-        
+
+
+
+
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
                 fieldvalue[0] = '\0';
@@ -260,30 +260,30 @@ int main (int argc, char* argv[]) {
                     }
                     if (*c == ',' && !inquotes) {
                         field++;
-                        if (capturing) break; 
-                        
+                        if (capturing) break;
+
                         continue;
                     }
                     //printf("Field: %d\n", field);
                     if (field == targetfield && ((*c == '.') || ((*c >= '0') && (*c <= '9')))) {
                         capturing = true;
-                        
+
                         fieldvalue[valueindex] = *c;
                         valueindex++;
-                        
-                        
+
+
                     }
                 }
                 //printf("Field value: %s\n", fieldvalue);
-               
+
                 if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
-                    
+
                     if (fillerpointer != fieldvalue) {
                         if (value < minvalue) {
                             minvalue = value;
                         }
-                    }       
+                    }
                 }
             }
             if (minvalue == DBL_MAX) {
@@ -307,17 +307,17 @@ int main (int argc, char* argv[]) {
                         inquotes = !inquotes;
                     }
                     else if ((*c == ',' || *c == '\n') && !inquotes) {
-                        
+
                         if (*c == '\n') {
                             fieldvalue[strlen(fieldvalue) - 1] = '\0';
                         }
-                        
+
                         if (strcmp(fieldvalue, max) == 0) {
                             targetfield = fieldindex;
                         }
 
                         memset(fieldvalue, 0, sizeof(fieldvalue));
-                        
+
                         fieldindex++;
                         valueindex = 0;
 
@@ -326,15 +326,15 @@ int main (int argc, char* argv[]) {
                         fieldvalue[valueindex] = *c;
                         valueindex++;
                     }
-                        
+
             }
-            
+
 
             //printf("Target field: %d\n", targetfield);
-            
-                    
-            
-        
+
+
+
+
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
                 fieldvalue[0] = '\0';
@@ -349,30 +349,30 @@ int main (int argc, char* argv[]) {
                     }
                     if (*c == ',' && !inquotes) {
                         field++;
-                        if (capturing) break; 
-                        
+                        if (capturing) break;
+
                         continue;
                     }
                     //printf("Field: %d\n", field);
                     if (field == targetfield && ((*c == '.') || ((*c >= '0') && (*c <= '9')))) {
                         capturing = true;
-                        
+
                         fieldvalue[valueindex] = *c;
                         valueindex++;
-                        
-                        
+
+
                     }
                 }
                 //printf("Field value: %s\n", fieldvalue);
-               
+
                 if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
-                    
+
                     if (fillerpointer != fieldvalue) {
                         if (value > maxvalue) {
                             maxvalue = value;
                         }
-                    }       
+                    }
                 }
             }
             if (maxvalue == DBL_MAX) {
@@ -397,34 +397,34 @@ int main (int argc, char* argv[]) {
                     inquotes = !inquotes;
                 }
                 else if ((*c == ',' || *c == '\n') && !inquotes) {
-                        
+
                     if (*c == '\n') {
                         fieldvalue[strlen(fieldvalue) - 1] = '\0';
                     }
-                    
+
                     if (strcmp(fieldvalue, mean) == 0) {
                         targetfield = fieldindex;
                     }
 
                     memset(fieldvalue, 0, sizeof(fieldvalue));
-                    
+
                     fieldindex++;
                     valueindex = 0;
-                    
+
                 }
                 if (*c != ',' && *c != '\n') {
                     fieldvalue[valueindex] = *c;
                     valueindex++;
                 }
-                
+
             }
-            
+
 
             //printf("Target field: %d\n", targetfield);
-            
-                    
-            
-        
+
+
+
+
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
                 fieldvalue[0] = '\0';
@@ -440,33 +440,33 @@ int main (int argc, char* argv[]) {
                     }
                     if (*c == ',' && !inquotes) {
                         field++;
-                        if (capturing) break; 
-                        
+                        if (capturing) break;
+
                         continue;
                     }
                     //printf("Field: %d\n", field);
                     if (field == targetfield && ((*c == '.') || ((*c >= '0') && (*c <= '9')))) {
                         capturing = true;
-                        
+
                         fieldvalue[valueindex] = *c;
                         valueindex++;
-                        
-                        
+
+
                     }
                 }
                 //printf("Field value: %s\n", fieldvalue);
-               
+
                 if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
-                    
+
                     if (fillerpointer != fieldvalue) {
-                        
+
                             sum += value;
                             itemcount++;
-                        
+
                     } else {
                         //printf("This value was not included.");
-                    }       
+                    }
                 }
             }
             if (itemcount == 0) {
@@ -497,30 +497,30 @@ int main (int argc, char* argv[]) {
                     }
                     if (*c == ',' && !inquotes) {
                         field++;
-                        if (capturing) break; 
-                        
+                        if (capturing) break;
+
                         continue;
                     }
-                    
+
                     if (field == targetfield && ((*c == '.') || ((*c >= '0') && (*c <= '9')))) {
                         capturing = true;
-                        
+
                         fieldvalue[valueindex] = *c;
                         valueindex++;
-                        
-                        
+
+
                     }
                 }
                 //printf("Field value: %s\n", fieldvalue);
-               
+
                 if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
-                    
+
                     if (fillerpointer != fieldvalue) {
                         if (value < minvalue) {
                             minvalue = value;
                         }
-                    }       
+                    }
                 }
             }
             if (minvalue == DBL_MAX) {
@@ -535,7 +535,7 @@ int main (int argc, char* argv[]) {
             char reader[512];
             char* fillerpointer;
             int targetfield = atoi(max);
-            
+
             while (fgets(reader, sizeof(reader), filepointer)) {
                 int field = 0;
                 char fieldvalue[512];
@@ -550,30 +550,30 @@ int main (int argc, char* argv[]) {
                     }
                     if (*c == ',' && !inquotes) {
                         field++;
-                        if (capturing) break; 
-                        
+                        if (capturing) break;
+
                         continue;
                     }
-                 
+
                     if (field == targetfield && ((*c == '.') || ((*c >= '0') && (*c <= '9')))) {
                         capturing = true;
-                        
+
                         fieldvalue[valueindex] = *c;
                         valueindex++;
-                        
-                        
+
+
                     }
                 }
                 //printf("Field value: %s\n", fieldvalue);
-               
+
                 if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
-                    
+
                     if (fillerpointer != fieldvalue) {
                         if (value > maxvalue) {
                             maxvalue = value;
                         }
-                    }       
+                    }
                 }
             }
             if (maxvalue == DBL_MIN) {
@@ -595,7 +595,7 @@ int main (int argc, char* argv[]) {
                 int valueindex = 0;
                 bool capturing = false;
                 bool inquotes = false;
-                
+
                 for (char *c = reader; *c; c++) {
                     //printf("C is %d\n", *c);
                     //printf("Field is %d\n", field);
@@ -604,21 +604,21 @@ int main (int argc, char* argv[]) {
                     }
                     if (*c == ',' && !inquotes) {
                         field++;
-                        if (capturing) break; 
-                        
+                        if (capturing) break;
+
                         continue;
                     }
                     //printf("Field: %d\n", field);
                     if (field == targetfield) {
                         capturing = true;
-                        
+
                         fieldvalue[valueindex] = *c;
                         valueindex++;
-                        
-                        
+
+
                     }
                 }
-                fieldvalue[valueindex] = '\0'; 
+                fieldvalue[valueindex] = '\0';
                 //printf("Field value: %s\n", fieldvalue);
                 if (isDouble(fieldvalue)) {
                     double value = strtod(fieldvalue, &fillerpointer);
@@ -630,60 +630,60 @@ int main (int argc, char* argv[]) {
                     //printf("This value was not included\n");
                 }
             }
-            
+
             //printf("Sum: %f\n", sum);
             //printf("Item count: %f\n", itemcount);
             if (itemcount == 0) {
                 return EXIT_FAILURE;
             }
-           
+
             printf("%f\n", sum / itemcount);
             rewind(filepointer);
             return EXIT_SUCCESS;
-        }          
-        
-      
-        
+        }
+
+
+
     }
 
 
 if (flags & FLAG_RECORDS) {
         char reader[512];
         int targetFieldIndex = -1;
-	char reader2[512];
+        char reader2[512];
         printf("Searching for records in file: %s\n", filename);
         printf("Field: %s, Value: %s\n", recordfield, recordvalue);
 
         // Read the first line for headers if -h is present
         if (flags & FLAG_H) {
             if (fgets(reader, sizeof(reader), filepointer)) {
-                char *headerLine = strdup(reader);  
-		trim_newline(reader);		
-		       //reader = strtok(reader, "\n");  // Removes newline by splitting at '\n'
+                char *headerLine = strdup(reader);
+                trim_newline(reader);
+                       //reader = strtok(reader, "\n");  // Removes newline by splitting at '\n'
 
-		int fieldIndex = 0;  
-            char *header = NULL;  
-	    //char readerclean[512];
-            //printf("Header: %s\n", reader);  
-	    //readerclean = trim_trailing_newline(reader);
+                int fieldIndex = 0;
+            char *header = NULL;
+            //char readerclean[512];
+            //printf("Header: %s\n", reader);
+            //readerclean = trim_trailing_newline(reader);
             // Iterate over fieldIndex from 0 to 10
             while (fieldIndex <= 10) {
-	      strcpy(reader2, reader);
-	      //readerclean = trim_trailing_newline(reader);
-                header = get_csv_field(reader2, fieldIndex);  
-		//printf("headerLine %s\n",headerLine);
-		//printf("header %s\n",header);
-                if (header) {  
-		  //printf("Header[%d]: '%s'\n", fieldIndex, header);  
+              strcpy(reader2, reader);
+              //readerclean = trim_trailing_newline(reader);
+                header = get_csv_field(reader2, fieldIndex);
+                //printf("headerLine %s\n",headerLine);
+                //printf("header %s\n",header);
+                if (header) {
+                  //printf("Header[%d]: '%s'\n", fieldIndex, header);
 
-                    if (strcmp(header, recordfield) == 0) {  
-                        targetFieldIndex = fieldIndex;  
-                        //break;  
-                    }  
-                }  
+                    if (strcmp(header, recordfield) == 0) {
+                        targetFieldIndex = fieldIndex;
+                        //break;
+                    }
+                }
 
-                fieldIndex++;  
-            } 
+                fieldIndex++;
+            }
 
                 free(headerLine);
 
@@ -705,18 +705,7 @@ if (flags & FLAG_RECORDS) {
             }
 
             //printf("Target field index: %d\n", targetFieldIndex);
-
             fgets(reader, sizeof(reader), filepointer);  // Skip header if -h not used
-
-        }
-    } else {
-        targetFieldIndex = atoi(recordfield);
-
-        if (targetFieldIndex < 0) {
-	  //fprintf(stderr, "Error: Invalid field index '%s'.\n", recordfield);
-            fclose(filepointer);
-            return EXIT_FAILURE;
-
         }
 
         // Process records
@@ -728,24 +717,18 @@ if (flags & FLAG_RECORDS) {
                 // Trim trailing newline and carriage return if it's the last value
                 trim_trailing_newline(fieldValue);
 
-
                 //printf("Comparing: FieldValue='%s' | RecordValue='%s'\n", fieldValue, recordvalue);
 
-        //printf("Processing line: %s", recordLine); // Debug print
-
-
                 if (strcmp(fieldValue, recordvalue) == 0) {
-		  printf("%s\n", recordLine);
+                  printf("%s\n", recordLine);
                 }
             }
-
 
             free(recordLine);
         }
 
         rewind(filepointer);
-    }    
-
+    }
 
     if (fclose (filepointer) == 0) {
         printf("Closed file.\n");
@@ -753,7 +736,7 @@ if (flags & FLAG_RECORDS) {
         fprintf(stderr, "Error closing file.\n");
         return EXIT_FAILURE;
     }
-    
+
     printf("Run successful.\n");
     return EXIT_SUCCESS;
 }
