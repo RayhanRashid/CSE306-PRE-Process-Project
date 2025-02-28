@@ -705,7 +705,18 @@ if (flags & FLAG_RECORDS) {
             }
 
             //printf("Target field index: %d\n", targetFieldIndex);
+
             fgets(reader, sizeof(reader), filepointer);  // Skip header if -h not used
+
+        }
+    } else {
+        targetFieldIndex = atoi(recordfield);
+
+        if (targetFieldIndex < 0) {
+	  //fprintf(stderr, "Error: Invalid field index '%s'.\n", recordfield);
+            fclose(filepointer);
+            return EXIT_FAILURE;
+
         }
 
         // Process records
@@ -717,18 +728,24 @@ if (flags & FLAG_RECORDS) {
                 // Trim trailing newline and carriage return if it's the last value
                 trim_trailing_newline(fieldValue);
 
+
                 //printf("Comparing: FieldValue='%s' | RecordValue='%s'\n", fieldValue, recordvalue);
+
+        //printf("Processing line: %s", recordLine); // Debug print
+
 
                 if (strcmp(fieldValue, recordvalue) == 0) {
 		  printf("%s\n", recordLine);
                 }
             }
 
+
             free(recordLine);
         }
 
         rewind(filepointer);
     }    
+
 
     if (fclose (filepointer) == 0) {
         printf("Closed file.\n");
