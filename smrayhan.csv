@@ -5,3 +5,4 @@ DATE,UBIT,DURATION,ACTIVITY & TOOL DESCRIPTION
 2025/02/24,smrayhan,1 hour 30 minutes,fixed Makefile and added a testing file.
 2025/02/24,smrayhan,1 hour,Fixed Makefile again so that everything compiles and runs with a sample csv.
 2025/02/26,smrayhan,3 hours,implemented -records but its still buggy with handling quotes in the csv and it doesn't print out the proper stuff yet. still has debug stuff.
+2025/02/28,smrayhan,3 hours,fixed records and -h handling.
