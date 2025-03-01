@@ -128,7 +128,7 @@ int parseIndexFromHeader(char **headers, char *value, int fields) {
             return idx;    
     }
 
-    fprintf(stderr, "No header \"%s\" could be found", value);
+    fprintf(stderr, "No header \"%s\" could be found\n", value);
     exit(EXIT_FAILURE);
 }
 
@@ -172,9 +172,7 @@ int main (int argc, char* argv[]) {
     char* recordfield = NULL;
     char* recordvalue = NULL;
     unsigned short int flags = parseFlags(argc, argv, &min, &max, &mean, &recordfield, &recordvalue);
-    //Reminder to remove all debug statements before submitting!!
-    printf("Flags read. flag_f: %d, flag_r: %d, flag_h: %d, min: %s, max: %s, mean: %s, recordfield: %s, recordvalue: %s\n", (flags & FLAG_F), (flags & FLAG_R) >> 1, (flags & FLAG_H) >> 2, min, max, mean, recordfield, recordvalue);
-    
+   
     int fields, records;
     int min_idx, max_idx, mean_idx, record_idx;
     double min_val, max_val, sum;
@@ -197,10 +195,10 @@ int main (int argc, char* argv[]) {
         record_idx = parseIndexFromHeader(headers, recordfield, fields);
     }
     else {
-        min_idx = atoi(min);
-        max_idx = atoi(max);
-        mean_idx = atoi(mean);
-        record_idx = atoi(recordfield);
+        min_idx = parseIndex(min, fields);
+        max_idx = parseIndex(max, fields);
+        mean_idx = parseIndex(mean, fields);
+        record_idx = parseIndex(recordfield, fields);
     }
 
     records = 0;
