@@ -39,9 +39,11 @@ all: $(TARGET)
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ)
 
-# Compile test binary
-test: $(SRC) $(TEST_SRC)
-	$(CC) $(CFLAGS) -I$(INCLUDE_PATH) -L$(LIB_PATH) -o $(TEST_BIN) $(SRC) $(TEST_SRC) $(TEST_FLAGS)
+.PHONY : test clean
+
+# Runs shell tests based on handout
+test: all
+	sh example_tests.sh
 
 # Compile object files
 %.o: %.c
