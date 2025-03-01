@@ -230,6 +230,7 @@ int main (int argc, char* argv[]) {
         }
     }
     
+    // Close filepointer or program fails
     if (fclose (filepointer) == 0) {
         printf("Closed file.\n");
     } else {
@@ -241,19 +242,23 @@ int main (int argc, char* argv[]) {
     if (flags & FLAG_F) {
         printf("%d\n", fields);
     }
-
+    // If flag -r is passed, print the number of records
     if (flags & FLAG_R) {
         printf("%d\n", records);
     }
+    // If flag -min is passed, print the minimum value of the field passed as an argument
     if (min) {
         printf("%lf\n", min_val);
     }
+    // If flag -max is passed, print the maximum value of the field passed as an argument
     if (max) {
         printf("%lf\n", max_val);
     }
+    // If flag -mean is passed, print the mean value of the field passed as an argument
     if (mean) {
         printf("%lf\n", sum / ((double) records));
     }
+    // If flag -records is passed, print all records which have the value of the field passed as an argument
     if (recordfield) {
         for (reader = r_head; reader != NULL; reader = r_head) {
             printf("%s", reader[0]);
