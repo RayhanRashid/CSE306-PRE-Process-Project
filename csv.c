@@ -651,8 +651,8 @@ if (flags & FLAG_RECORDS) {
         char reader[512];
         int targetFieldIndex = -1;
         char reader2[512];
-        printf("Searching for records in file: %s\n", filename);
-        printf("Field: %s, Value: %s\n", recordfield, recordvalue);
+        //printf("Searching for records in file: %s\n", filename);
+        //printf("Field: %s, Value: %s\n", recordfield, recordvalue);
 
         // Read the first line for headers if -h is present
         if (flags & FLAG_H) {
