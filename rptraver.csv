@@ -5,3 +5,4 @@ DATE,UBIT,DURATION,ACTIVITY & TOOL DESCRIPTION
 2/24/2025,rptraver,5 minutes,Created and input previous commit messages to 'rptraver.csv'
 2/24/2025,rptraver,25 minutes,Changed flag detection, reduced quantity of boolean operations
 2/25/2025,rptraver,50 minutes,Removed 'headerpresent' (redundant boolean tracker), fixed SEGFAULT caused by uninitialized pointers
+2/28/2025,rptraver,5 minutes,COmment out debug messages

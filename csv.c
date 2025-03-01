@@ -128,7 +128,7 @@ int main (int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    printf("File opened: %s\n", filename);
+    //printf("File opened: %s\n", filename);
 
     //Recorded flag values.
     char* min = NULL;
@@ -167,7 +167,7 @@ int main (int argc, char* argv[]) {
         //Ignore non flag arguments until filename (last argument);
     }
     //Reminder to remove all debug statements before submitting!!
-    printf("Flags read. flag_f: %d, flag_r: %d, flag_h: %d, min: %s, max: %s, mean: %s, recordfield: %s, recordvalue: %s\n", (flags & FLAG_F), (flags & FLAG_R) >> 1, (flags & FLAG_H) >> 2, min, max, mean, recordfield, recordvalue);
+    //printf("Flags read. flag_f: %d, flag_r: %d, flag_h: %d, min: %s, max: %s, mean: %s, recordfield: %s, recordvalue: %s\n", (flags & FLAG_F), (flags & FLAG_R) >> 1, (flags & FLAG_H) >> 2, min, max, mean, recordfield, recordvalue);
 
     if (flags & FLAG_F) {
         int fields = 1;
@@ -731,12 +731,12 @@ if (flags & FLAG_RECORDS) {
     }
 
     if (fclose (filepointer) == 0) {
-        printf("Closed file.\n");
+        //printf("Closed file.\n");
     } else {
         fprintf(stderr, "Error closing file.\n");
         return EXIT_FAILURE;
     }
 
-    printf("Run successful.\n");
+    //printf("Run successful.\n");
     return EXIT_SUCCESS;
 }
