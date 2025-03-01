@@ -10,6 +10,120 @@
 #define FLAG_MEAN 0x20
 #define FLAG_RECORDS 0x40
 
+#define MEM_ALIGN 8 // Size used for heap memory alignment
+
+unsigned short int parseFlags(int argc, char **argv, char **p_min, char **p_max, char **p_mean, char **p_rfield, char **p_rvalue) {
+    unsigned short int flags = 0;
+    //Flag reader. 
+    for (int i = 1; i < argc - 1; i++) {
+        if (strcmp(argv[i], "-min") == 0) {
+            flags |= FLAG_MIN;
+            *p_min = argv[i + 1];
+            i++;
+        } else if (strcmp(argv[i], "-max") == 0) {
+            flags |= FLAG_MAX;
+            *p_max = argv[i + 1];
+            i++;
+        } else if (strcmp(argv[i], "-mean") == 0) {
+            flags |= FLAG_MEAN;
+            *p_mean = argv[i + 1];
+            i++;
+        } else if (strcmp(argv[i], "-records") == 0) {
+            flags |= FLAG_RECORDS;
+            *p_rfield = argv[i + 1];
+            *p_rvalue = argv[i + 2];
+            i += 2;
+        } else if (argv[i][0] == '-') {
+            if (strchr(argv[i], 'f'))
+                flags |= FLAG_F;
+            if (strchr(argv[i], 'r'))
+                flags |= FLAG_R;
+            if (strchr(argv[i], 'h'))
+                flags |= FLAG_H;
+        }
+    }
+    return flags;
+}
+
+int getFields(FILE *f_ptr) {
+    int fields;
+    char c;
+    for (fields = 1, c = fgetc(f_ptr); c != EOF && c != '\n'; c = fgetc(f_ptr)) {
+        if (c == ',')
+            fields++;
+    }
+    return fields;
+}
+
+// Returns a CSV record as an array of pointers to strings allocated on the heap;
+// Takes a file pointer pointer argument in order to advance the file pointer in the parent scope;
+// Takes an integer argument to set the length of the array;
+// There is an additional index at the end of each record to serve as a next pointer if '-records' is passed
+// This allows a linked list to be formed so the records can be printed after the file reading loop
+// Returns NULL if End Of File is reached
+char **getRecord(FILE** fp_ptr, int fields) {
+    FILE *lookahead = *fp_ptr;
+    int len, i;
+    char c, *txt, **record;
+
+    for (len = 0, c = fgetc(lookahead); c != EOF && c != '\n'; len++, c = fgetc(lookahead));
+
+    len++;
+    len += ((MEM_ALIGN - (len % MEM_ALIGN)) % MEM_ALIGN);
+    txt = calloc(len, sizeof(char));
+    for (i = 1; i < MEM_ALIGN+1; i++) {
+        if (txt[len-i] == '\n') {
+            txt[len-i] = 0;
+            break;
+        }
+    }
+
+    if (!fgets(txt, len, *fp_ptr))
+        free(txt);
+        return NULL;
+
+    record = calloc(fields + 1, sizeof(char *));
+    for (i = 0; i < fields; i++)
+        record[i] = strtok(txt, ',');
+    
+    return record;
+}
+
+// Frees the array of pointers generated on the heap by getRecord()
+void freeRecord(char **record, int fields) {
+    int i;
+    for (i = 0; i < fields; i++)
+        free(record[i]);
+    free(record);
+}
+
+int parseIndex(char *value, int fields) {
+    if (value == NULL)
+        return -1;
+
+    if (value[0] < 48 || value[0] > 57) {
+        fprintf(stderr, "Provided index value \"%s\" value is not recognized as numeric (starts with non-number character)\n", value);
+        exit(EXIT_FAILURE);
+    }
+
+    return atoi(value);
+}
+
+// Converts the header text to a numeric index corresponding to the information
+// located in the same "cell" as the header text is found in the header line
+int parseIndexFromHeader(char **headers, char *value, int fields) {
+    if (value == NULL)
+        return -1;
+
+    for (int idx = 0; idx < fields; idx++)
+        if (strcmp(headers[idx], value) == 0) {
+            return idx;    
+    }
+
+    fprintf(stderr, "No header \"%s\" could be found", value);
+    exit(EXIT_FAILURE);
+}
+
 int main (int argc, char* argv[]) {
 
     if (argc > 11) {
@@ -49,76 +163,105 @@ int main (int argc, char* argv[]) {
     char* mean = NULL;
     char* recordfield = NULL;
     char* recordvalue = NULL;
-    unsigned short int flags = 0;
-    //Flag reader. 
-    for (int i = 1; i < argc - 1; i++) {
-        if (strcmp(argv[i], "-min") == 0) {
-            flags |= FLAG_MIN;
-            min = argv[i + 1];
-            i++;
-        } else if (strcmp(argv[i], "-max") == 0) {
-            flags |= FLAG_MAX;
-            max = argv[i + 1];
-            i++;
-        } else if (strcmp(argv[i], "-mean") == 0) {
-            flags |= FLAG_MEAN;
-            mean = argv[i + 1];
-            i++;
-        } else if (strcmp(argv[i], "-records") == 0) {
-            flags |= FLAG_RECORDS;
-            recordfield = argv[i + 1];
-            recordvalue = argv[i + 2];
-            i += 2;
-        } else if (argv[i][0] == '-') {
-            if (strchr(argv[i], 'f'))
-                flags |= FLAG_F;
-            if (strchr(argv[i], 'r'))
-                flags |= FLAG_R;
-            if (strchr(argv[i], 'h'))
-                flags |= FLAG_H;
-        }
-        //Ignore non flag arguments until filename (last argument);
-    }
+    unsigned short int flags = parseFlags(argc, argv, &min, &max, &mean, &recordfield, &recordvalue);
     //Reminder to remove all debug statements before submitting!!
     printf("Flags read. flag_f: %d, flag_r: %d, flag_h: %d, min: %s, max: %s, mean: %s, recordfield: %s, recordvalue: %s\n", (flags & FLAG_F), (flags & FLAG_R) >> 1, (flags & FLAG_H) >> 2, min, max, mean, recordfield, recordvalue);
     
-    if (flags & FLAG_F) {
-        int fields = 1;
-        char reader[512];
+    int fields, records;
+    int min_idx, max_idx, mean_idx, record_idx;
+    double min_val, max_val, sum;
+    char **reader, **headers;
+    char **r_head, **r_tail;
+    
+    fields = getFields(filepointer);
+    min_val = INT_MIN;
+    max_val = INT_MAX;
+    r_head = NULL;
+    r_tail = NULL;
 
-        fgets(reader, sizeof(reader), filepointer);
-        
-        for (char *c = reader; *c; c++) {
-            if (*c == ',') {
-                fields++;
-            }
-        }
-        
-        printf("%d\n", fields);
-        rewind(filepointer);
+    // If flag -h is passed, save the headers record.
+    // Because we save the headers record before the reader loop, it will not be counted by flag -r
+    if (flags & FLAG_H) {
+        headers = getRecord(&filepointer, fields);
+        min_idx = parseIndexFromHeader(headers, min, fields);
+        max_idx = parseIndexFromHeader(headers, max, fields);
+        mean_idx = parseIndexFromHeader(headers, mean, fields);
+        record_idx = parseIndexFromHeader(headers, recordfield, fields);
     }
-    if (flags & FLAG_R) {
-        int records = 0;
-        //if h is present, first line doesn't count
-        if (flags & FLAG_H) {
-            records = -1;
-        }
-        
-        char reader[512];
+    else {
+        min_idx = atoi(min);
+        max_idx = atoi(max);
+        mean_idx = atoi(mean);
+        record_idx = atoi(recordfield);
+    }
 
-        while(fgets(reader, sizeof(reader), filepointer)) {
-            records++;
+    records = 0;
+    sum = 0;
+    
+    int temp;
+    for (reader = getRecord(&filepointer, fields); reader != NULL; reader = getRecord(&filepointer, fields)) {
+        // Count total non-header records
+        records++;
+        if (min){
+            // Check if currenet record value in given field is max, if so overwrite
+            temp = atof(reader[min_idx]);
+            if (temp < min_val)
+                min_val = temp;
         }
-        
-        printf("%d\n", records);
-        rewind(filepointer);
-    } 
-
+        if (max) {
+            // Check if currenet record value in given field is max, if so overwrite
+            temp = atof(reader[min_idx]);
+            if (temp < max_val)
+                max_val = temp;
+        }
+        if (mean) {
+            // Add to sum that will be divided by # of records at the end of the loop to calculate the mean
+            temp = atof(reader[mean_idx]);
+            sum += temp;
+        }
+        if (recordfield) {
+            // Save records that match the given value in 'recordfield' variable
+            if (strcmp(reader[record_idx], recordvalue) == 0) {
+                if (r_head == NULL)
+                    r_head = reader;
+                r_tail[fields] = (char *) reader;
+                r_tail = reader;
+            }                
+        }
+    }
+    
     if (fclose (filepointer) == 0) {
         printf("Closed file.\n");
     } else {
         fprintf(stderr, "Error closing file.\n");
         return EXIT_FAILURE;
+    }
+
+    // If flag -f is passed, print the number of fields
+    if (flags & FLAG_F) {
+        printf("%d\n", fields);
+    }
+
+    if (flags & FLAG_R) {
+        printf("%d\n", records);
+    }
+    if (min) {
+        printf("%lf\n", min_val);
+    }
+    if (max) {
+        printf("%lf\n", max_val);
+    }
+    if (mean) {
+        printf("%lf\n", sum / ((double) records));
+    }
+    if (recordfield) {
+        for (reader = r_head; reader != NULL; reader = r_head) {
+            printf("%s", reader[0]);
+            for (int i = 1; i < fields; i++) {
+                printf(",%s", reader[i]);
+            }
+            printf("\n");
+        }
     }
     
     printf("Run successful.\n");
