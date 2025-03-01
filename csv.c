@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #define FLAG_F 0x01
 #define FLAG_R 0x02
@@ -78,13 +79,14 @@ char **getRecord(FILE** fp_ptr, int fields) {
         }
     }
 
-    if (!fgets(txt, len, *fp_ptr))
+    if (!fgets(txt, len, *fp_ptr)) {
         free(txt);
         return NULL;
+    }
 
     record = calloc(fields + 1, sizeof(char *));
     for (i = 0; i < fields; i++)
-        record[i] = strtok(txt, ',');
+        record[i] = strtok(txt, ",");
     
     return record;
 }
@@ -102,11 +104,17 @@ int parseIndex(char *value, int fields) {
         return -1;
 
     if (value[0] < 48 || value[0] > 57) {
-        fprintf(stderr, "Provided index value \"%s\" value is not recognized as numeric (starts with non-number character)\n", value);
+        fprintf(stderr, "Provided index value \"%s\" value is not recognized as positive integer numeric (starts with non-number character)\n", value);
         exit(EXIT_FAILURE);
     }
 
-    return atoi(value);
+    int int_val = atoi(value);
+    if (int_val >= fields) {
+        fprintf(stderr, "Integer \"%d\" exceeds maximum possible index of records of length %d\n", int_val, fields);
+        exit(EXIT_FAILURE);
+    }
+
+    return int_val;
 }
 
 // Converts the header text to a numeric index corresponding to the information
@@ -210,7 +218,7 @@ int main (int argc, char* argv[]) {
         }
         if (max) {
             // Check if currenet record value in given field is max, if so overwrite
-            temp = atof(reader[min_idx]);
+            temp = atof(reader[max_idx]);
             if (temp < max_val)
                 max_val = temp;
         }
